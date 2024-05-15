@@ -1,4 +1,6 @@
+mod vec3;
 use indicatif::ProgressBar;
+use vec3::*;
 
 fn main() {
     const IMAGE_WIDTH: u32 = 256;
