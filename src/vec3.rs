@@ -2,7 +2,7 @@ use std::fmt;
 use std::fmt::Display;
 use std::ops::{Add, AddAssign, Div, DivAssign, Index, IndexMut, Mul, MulAssign, Sub, SubAssign};
 
-#[derive(Debug)]
+#[derive(Debug, Clone, Copy)]
 pub struct Vec3 {
     e: [f64; 3],
 }
@@ -14,19 +14,19 @@ impl Vec3 {
     pub fn new(e0: f64, e1: f64, e2: f64) -> Vec3 {
         Vec3 { e: [e0, e1, e2] }
     }
-    pub fn x(self) -> f64 {
+    pub fn x(&self) -> f64 {
         self[0]
     }
 
-    pub fn y(self) -> f64 {
+    pub fn y(&self) -> f64 {
         self[1]
     }
 
-    pub fn z(self) -> f64 {
+    pub fn z(&self) -> f64 {
         self[2]
     }
 
-    pub fn dot(self, other: Vec3) -> f64 {
+    pub fn dot(&self, other: Vec3) -> f64 {
         self[0] * other[0] + self[1] * other[1] + self[2] * other[2]
     }
 
