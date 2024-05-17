@@ -1,4 +1,4 @@
-use crate::vec3::*;
+use crate::{ray::Ray, vec3::*};
 
 pub fn write_color(pixel_color: Color) {
     let r = pixel_color.x();
@@ -10,4 +10,10 @@ pub fn write_color(pixel_color: Color) {
     let bbyte = (255.999 * b) as u32;
 
     println!("{rbyte} {gbyte} {bbyte}")
+}
+
+pub fn ray_color(r: Ray) -> Color {
+    let unit_direction = unit_vector(&r.direction());
+    let a = 0.5 * (unit_direction.y() + 1.0);
+    (1.0 - a) * Color::new(1.0, 1.0, 1.0) + a * Color::new(0.5, 0.7, 1.0)
 }
