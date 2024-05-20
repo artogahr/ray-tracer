@@ -36,6 +36,10 @@ impl Vec3 {
         self.dot(self).sqrt()
     }
 
+    pub fn length_squared(self) -> f64 {
+        self.dot(self)
+    }
+
     pub fn cross(self, other: Vec3) -> Vec3 {
         Vec3 {
             e: [

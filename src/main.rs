@@ -42,8 +42,8 @@ fn main() {
     let bar = ProgressBar::new((image_width * image_height) as u64);
 
     for j in 0..image_height {
-        bar.inc(1);
         for i in 0..image_width {
+            bar.inc(1);
             let pixel_center =
                 pixel00_loc + (i as f64 * pixel_delta_u) + (j as f64 * pixel_delta_v);
             let ray_direction = pixel_center - camera_center;
