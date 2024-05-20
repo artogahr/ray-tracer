@@ -1,3 +1,5 @@
+use core::f64;
+
 use crate::vec3::*;
 
 pub struct Ray {
@@ -21,11 +23,16 @@ impl Ray {
     }
 }
 
-pub fn hit_sphere(center: Point3, radius: f64, r: &Ray) -> bool {
+pub fn hit_sphere(center: Point3, radius: f64, r: &Ray) -> f64 {
     let oc = center - r.origin();
     let a = r.direction().dot(r.direction());
-    let b = -2.0 * r.direction().dot(oc);
+    let b = -2.0 * oc.dot(r.direction());
     let c = oc.dot(oc) - radius * radius;
     let discriminant = b * b - 4.0 * a * c;
-    discriminant >= 0.0
+
+    if discriminant < 0.0 {
+        -1.0
+    } else {
+        (-b - discriminant.sqrt()) / (2.0 * a)
+    }
 }

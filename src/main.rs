@@ -51,7 +51,7 @@ fn main() {
                 orig: pixel_center,
                 dir: ray_direction,
             };
-            let pixel_color = ray_color(r);
+            let pixel_color = ray_color(&r);
             write_color(pixel_color);
         }
     }

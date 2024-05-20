@@ -2,7 +2,7 @@ use std::fmt;
 use std::fmt::Display;
 use std::ops::{Add, AddAssign, Div, DivAssign, Index, IndexMut, Mul, MulAssign, Sub, SubAssign};
 
-#[derive(Debug, Clone, Copy)]
+#[derive(Debug, Clone, Copy, PartialEq)]
 pub struct Vec3 {
     e: [f64; 3],
 }
@@ -46,6 +46,14 @@ impl Vec3 {
 
     pub fn normalized(self) -> Vec3 {
         self / self.length()
+    }
+    pub fn format_color(self) -> String {
+        format!(
+            "{} {} {}",
+            (255.999 * self[0]) as u64,
+            (255.999 * self[1]) as u64,
+            (255.999 * self[2]) as u64
+        )
     }
 }
 
@@ -148,8 +156,4 @@ impl DivAssign<f64> for Vec3 {
             e: [self[0] / other, self[1] / other, self[2] / other],
         };
     }
-}
-
-pub fn unit_vector(v: &Vec3) -> Vec3 {
-    *v / v.length()
 }
