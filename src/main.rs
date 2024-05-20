@@ -48,7 +48,7 @@ fn main() {
                 pixel00_loc + (i as f64 * pixel_delta_u) + (j as f64 * pixel_delta_v);
             let ray_direction = pixel_center - camera_center;
             let r: Ray = Ray {
-                orig: pixel_center,
+                orig: camera_center,
                 dir: ray_direction,
             };
             let pixel_color = ray_color(&r);
