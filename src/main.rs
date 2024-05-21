@@ -1,13 +1,18 @@
 mod color;
 mod hittable;
+mod hittable_list;
 mod ray;
 mod sphere;
 mod vec3;
+use std::rc::Rc;
+
 use indicatif::ProgressBar;
 
 use crate::{
     color::*,
+    hittable_list::HittableList,
     ray::Ray,
+    sphere::Sphere,
     vec3::{Color, Point3, Vec3},
 };
 
@@ -16,6 +21,13 @@ fn main() {
 
     let image_width: u32 = 800;
     let image_height: u32 = (image_width as f64 / aspect_ratio) as u32;
+
+    // World
+    let mut world: HittableList = HittableList::new();
+    let sphere1 = Sphere::new(Point3::new(0.0, 0.0, -1.0), 0.5);
+    let sphere2 = Sphere::new(Point3::new(0.0, -100.5, -1.0), 100.0);
+    world.add(Rc::new(sphere1));
+    world.add(Rc::new(sphere2));
 
     //Camera
 
@@ -53,7 +65,7 @@ fn main() {
                 orig: camera_center,
                 dir: ray_direction,
             };
-            let pixel_color = ray_color(&r);
+            let pixel_color = ray_color(&r, &world);
             write_color(pixel_color);
         }
     }

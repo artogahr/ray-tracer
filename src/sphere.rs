@@ -8,6 +8,12 @@ pub struct Sphere {
     radius: f64,
 }
 
+impl Sphere {
+    pub fn new(center: Point3, radius: f64) -> Self {
+        Sphere { center, radius }
+    }
+}
+
 impl Hittable for Sphere {
     fn hit(
         &self,
