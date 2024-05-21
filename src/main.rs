@@ -1,6 +1,7 @@
 mod color;
 mod hittable;
 mod hittable_list;
+mod interval;
 mod ray;
 mod sphere;
 mod vec3;
@@ -24,10 +25,10 @@ fn main() {
 
     // World
     let mut world: HittableList = HittableList::new();
-    let sphere1 = Sphere::new(Point3::new(0.0, 0.0, -1.0), 0.5);
-    let sphere2 = Sphere::new(Point3::new(0.0, -100.5, -1.0), 100.0);
-    world.add(Rc::new(sphere1));
-    world.add(Rc::new(sphere2));
+    let sun = Sphere::new(Point3::new(0.0, 0.0, -1.0), 0.5);
+    let land = Sphere::new(Point3::new(0.0, -100.5, -1.0), 100.0);
+    world.add(Rc::new(land));
+    world.add(Rc::new(sun));
 
     //Camera
 

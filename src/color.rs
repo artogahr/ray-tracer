@@ -1,5 +1,6 @@
 use crate::{
     hittable::{HitRecord, Hittable},
+    interval::Interval,
     ray::{hit_sphere, Ray},
     vec3::*,
 };
@@ -18,7 +19,7 @@ pub fn write_color(pixel_color: Color) {
 
 pub fn ray_color(r: &Ray, world: &impl Hittable) -> Color {
     let mut rec: HitRecord = HitRecord::default();
-    if world.hit(r, 0.0, f64::INFINITY, &mut rec) {
+    if world.hit(r, Interval::from_values(0.0, f64::INFINITY), &mut rec) {
         return 0.5 * (rec.normal + Color::new(1.0, 1.0, 1.0));
     }
 
