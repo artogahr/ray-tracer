@@ -19,6 +19,7 @@ pub struct Camera {
     pixel_delta_u: Vec3,
     pixel_delta_v: Vec3,
     pixel_samples_scale: f64,
+    max_depth: u32,
 }
 
 impl Camera {
@@ -44,6 +45,7 @@ impl Camera {
         let pixel_delta_u = viewport_u / image_width as f64;
         let pixel_delta_v = viewport_v / image_height as f64;
         let pixel00_loc = viewport_upper_left + 0.5 * (pixel_delta_u + pixel_delta_v);
+        let max_depth = 50;
         Camera {
             aspect_ratio,
             image_width,
@@ -54,6 +56,7 @@ impl Camera {
             pixel_delta_v,
             pixel00_loc,
             pixel_samples_scale: 1.0 / samples_per_pixel as f64,
+            max_depth,
         }
     }
 
@@ -70,7 +73,7 @@ impl Camera {
                 let mut pixel_color = Color::new(0.0, 0.0, 0.0);
                 for _sample in 0..self.samples_per_pixel {
                     let r: Ray = self.get_ray(i, j);
-                    pixel_color += Self::ray_color(&r, world);
+                    pixel_color += Self::ray_color(&r, self.max_depth, world);
                 }
                 write_color(self.pixel_samples_scale * pixel_color);
             }
@@ -78,12 +81,17 @@ impl Camera {
         bar.finish();
     }
 
-    fn ray_color(r: &Ray, world: &(impl Hittable + ?Sized)) -> Color {
+    fn ray_color(r: &Ray, depth: u32, world: &(impl Hittable + ?Sized)) -> Color {
+        // If we've exceeded the ray bounce limit, no more light is gathered.
+        if depth <= 0 {
+            return Color::new(0.0, 0.0, 0.0);
+        }
+
         let mut rec: HitRecord = HitRecord::default();
 
-        if world.hit(r, Interval::from_values(0.0, f64::INFINITY), &mut rec) {
+        if world.hit(r, Interval::from_values(0.001, f64::INFINITY), &mut rec) {
             let direction: Vec3 = Vec3::random_on_hemisphere(&rec.normal);
-            return 0.5 * Self::ray_color(&Ray::new(rec.p, direction), world);
+            return 0.5 * Self::ray_color(&Ray::new(rec.p, direction), depth - 1, world);
         }
 
         let unit_direction: Vec3 = r.direction().normalized();
