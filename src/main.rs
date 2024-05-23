@@ -21,7 +21,7 @@ fn main() {
     world.add(Rc::new(sun));
 
     let aspect_ratio = 16.0 / 9.0;
-    let image_width = 400;
+    let image_width = 800;
     let mut cam: Camera = Camera::new(aspect_ratio, image_width, 100);
 
     cam.render(&world);

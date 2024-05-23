@@ -4,6 +4,8 @@ use std::ops::{
     Add, AddAssign, Div, DivAssign, Index, IndexMut, Mul, MulAssign, Neg, Sub, SubAssign,
 };
 
+use rand::{thread_rng, Rng};
+
 #[derive(Default, Debug, Clone, Copy, PartialEq)]
 pub struct Vec3 {
     e: [f64; 3],
@@ -16,6 +18,19 @@ impl Vec3 {
     pub fn new(e0: f64, e1: f64, e2: f64) -> Vec3 {
         Vec3 { e: [e0, e1, e2] }
     }
+
+    pub fn random() -> Self {
+        Self::new(thread_rng().gen(), thread_rng().gen(), thread_rng().gen())
+    }
+
+    pub fn random_in_range(min: f64, max: f64) -> Self {
+        Self::new(
+            thread_rng().gen_range(min..max),
+            thread_rng().gen_range(min..max),
+            thread_rng().gen_range(min..max),
+        )
+    }
+
     pub fn x(&self) -> f64 {
         self[0]
     }
@@ -53,6 +68,29 @@ impl Vec3 {
     pub fn normalized(self) -> Vec3 {
         self / self.length()
     }
+
+    fn random_in_unit_sphere() -> Vec3 {
+        loop {
+            let p = Self::random_in_range(-1.0, 1.0);
+            if p.length_squared() < 1.0 {
+                return p;
+            }
+        }
+    }
+
+    fn random_unit_vector() -> Vec3 {
+        Self::random_in_unit_sphere().normalized()
+    }
+
+    pub fn random_on_hemisphere(normal: &Vec3) -> Vec3 {
+        let on_unit_sphere: Vec3 = Self::random_unit_vector();
+        if on_unit_sphere.dot(*normal) > 0.0 {
+            on_unit_sphere
+        } else {
+            -on_unit_sphere
+        }
+    }
+
     pub fn format_color(self) -> String {
         format!(
             "{} {} {}",
