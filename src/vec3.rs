@@ -1,3 +1,4 @@
+use core::f64;
 use std::fmt;
 use std::fmt::Display;
 use std::ops::{
@@ -112,6 +113,13 @@ impl Vec3 {
     pub fn reflect(self, n: Vec3) -> Vec3 {
         self - 2.0 * self.dot(n) * n
     }
+
+    pub fn refract(uv: &Vec3, n: &Vec3, etai_over_etat: f64) -> Vec3 {
+        let cos_theta = f64::min(n.dot(-*uv), 1.0);
+        let r_out_perp: Vec3 = etai_over_etat * (*uv + cos_theta * *n);
+        let r_out_parallel: Vec3 = (-1.0 * f64::abs(1.0 - r_out_perp.length_squared()).sqrt()) * *n;
+        r_out_perp + r_out_parallel
+    }
 }
 
 impl Display for Vec3 {
@@ -149,6 +157,16 @@ impl Add for Vec3 {
     fn add(self, other: Vec3) -> Vec3 {
         Vec3 {
             e: [self[0] + other[0], self[1] + other[1], self[2] + other[2]],
+        }
+    }
+}
+
+impl Add<Vec3> for f64 {
+    type Output = Vec3;
+
+    fn add(self, rhs: Vec3) -> Self::Output {
+        Vec3 {
+            e: [rhs[0] + self, rhs[1] + self, rhs[2] + self],
         }
     }
 }
