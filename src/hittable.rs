@@ -1,17 +1,22 @@
+use std::rc::Rc;
+
 use crate::{
     interval::Interval,
+    material::*,
     ray::Ray,
-    vec3::{Point3, Vec3},
+    sphere::{self, Sphere},
+    vec3::{Color, Point3, Vec3},
 };
 
 pub trait Hittable {
     fn hit(&self, r: &Ray, ray_t: Interval, rec: &mut HitRecord) -> bool;
 }
 
-#[derive(Default, Clone, Copy)]
+#[derive(Clone)]
 pub struct HitRecord {
     pub p: Point3,
     pub normal: Vec3,
+    pub mat: Rc<dyn Scatter>,
     pub t: f64,
     pub front_face: bool,
 }
@@ -28,6 +33,18 @@ impl HitRecord {
             } else {
                 -*outward_normal
             }
+        }
+    }
+}
+
+impl Default for HitRecord {
+    fn default() -> Self {
+        HitRecord {
+            p: Point3::new(0.0, 0.0, 0.0),
+            normal: Vec3::new(0.0, 0.0, 0.0),
+            mat: Rc::new(Lambertian::new(Color::new(0.5, 0.5, 0.5))),
+            t: 0.0,
+            front_face: true,
         }
     }
 }

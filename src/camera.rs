@@ -81,7 +81,7 @@ impl Camera {
         bar.finish();
     }
 
-    fn ray_color(r: &Ray, depth: u32, world: &(impl Hittable + ?Sized)) -> Color {
+    pub fn ray_color(r: &Ray, depth: u32, world: &(impl Hittable + ?Sized)) -> Color {
         // If we've exceeded the ray bounce limit, no more light is gathered.
         if depth <= 0 {
             return Color::new(0.0, 0.0, 0.0);
@@ -90,8 +90,10 @@ impl Camera {
         let mut rec: HitRecord = HitRecord::default();
 
         if world.hit(r, Interval::from_values(0.001, f64::INFINITY), &mut rec) {
-            let direction: Vec3 = rec.normal + Vec3::random_unit_vector();
-            return 0.5 * Self::ray_color(&Ray::new(rec.p, direction), depth - 1, world);
+            if let Some((attenuation, scattered)) = rec.mat.scatter(r, &rec) {
+                return attenuation * Camera::ray_color(&scattered, depth - 1, world);
+            }
+            return Color::new(0.0, 0.0, 0.0);
         }
 
         let unit_direction: Vec3 = r.direction().normalized();

@@ -99,6 +99,19 @@ impl Vec3 {
             (255.999 * self[2]) as u64
         )
     }
+
+    pub fn near_zero(&self) -> bool {
+        // Return true if the vector is close to zero in all dimensions.
+        let s = 1.0e-8;
+        if self[0].abs() < s && self[1].abs() < s && self[2].abs() < s {
+            return true;
+        }
+        false
+    }
+
+    pub fn reflect(self, n: Vec3) -> Vec3 {
+        self - 2.0 * self.dot(n) * n
+    }
 }
 
 impl Display for Vec3 {
@@ -190,6 +203,16 @@ impl Mul<Vec3> for f64 {
     fn mul(self, other: Vec3) -> Vec3 {
         Vec3 {
             e: [self * other[0], self * other[1], self * other[2]],
+        }
+    }
+}
+
+impl Mul<Vec3> for Vec3 {
+    type Output = Self;
+
+    fn mul(self, other: Vec3) -> Self {
+        Vec3 {
+            e: [self[0] * other[0], self[1] * other[1], self[2] * other[2]],
         }
     }
 }
