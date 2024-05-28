@@ -10,7 +10,7 @@ mod vec3;
 use camera::Camera;
 use material::*;
 use std::rc::Rc;
-use vec3::Color;
+use vec3::{Color, Vec3};
 
 use crate::{hittable_list::HittableList, sphere::Sphere, vec3::Point3};
 
@@ -53,6 +53,11 @@ fn main() {
     let aspect_ratio = 16.0 / 9.0;
     let image_width = 400;
     let mut cam: Camera = Camera::new(aspect_ratio, image_width, 50);
+    cam.max_depth = 50;
+    cam.vfov = 90.0;
+    cam.lookfrom = Point3::new(-2.0, 2.0, 1.0);
+    cam.lookat = Point3::new(0.0, 0.0, -1.0);
+    cam.vup = Vec3::new(0.0, 1.0, 0.0);
 
     cam.render(&world);
 }

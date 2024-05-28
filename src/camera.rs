@@ -20,11 +20,11 @@ pub struct Camera {
     pixel_delta_u: Vec3,
     pixel_delta_v: Vec3,
     pixel_samples_scale: f64,
-    max_depth: u32,
-    vfov: f64,
-    lookfrom: Point3,
-    lookat: Point3,
-    vup: Vec3,
+    pub max_depth: u32,
+    pub vfov: f64,
+    pub lookfrom: Point3,
+    pub lookat: Point3,
+    pub vup: Vec3,
     v: Vec3,
     u: Vec3,
     w: Vec3, // Camera frame basis vectors
@@ -41,10 +41,10 @@ impl Camera {
             }
         };
         // Calculate the vectors across the horizontal and down the vertical viewport edges. sg
-        let vfov: f64 = 20.0;
+        let vfov: f64 = 90.0;
         let theta = degrees_to_radians(vfov);
         let h = f64::tan(theta / 2.0);
-        let lookfrom = Point3::new(-2.0, 2.0, 1.0);
+        let lookfrom = Point3::new(0.0, 0.0, 0.0);
         let lookat = Point3::new(0.0, 0.0, -1.0);
         let focal_length: f64 = (lookfrom - lookat).length();
         let viewport_height: f64 = 2.0 * h * focal_length;
@@ -83,7 +83,38 @@ impl Camera {
         }
     }
 
+    fn initialize(&mut self) {
+        self.image_height = (self.image_width as f64 / self.aspect_ratio) as u32;
+        self.image_height = {
+            if self.image_height < 1 {
+                1
+            } else {
+                self.image_height
+            }
+        };
+        // Calculate the vectors across the horizontal and down the vertical viewport edges. sg
+        let theta = degrees_to_radians(self.vfov);
+        let h = f64::tan(theta / 2.0);
+        let focal_length: f64 = (self.lookfrom - self.lookat).length();
+        let viewport_height: f64 = 2.0 * h * focal_length;
+        let viewport_width: f64 =
+            viewport_height * ((self.image_width as f64) / (self.image_height as f64));
+        self.w = (self.lookfrom - self.lookat).normalized();
+        self.u = (self.vup.cross(self.w)).normalized();
+        self.v = self.w.cross(self.u);
+        let viewport_u = viewport_width * self.u;
+        let viewport_v = viewport_height * -self.v;
+        self.center = self.lookfrom;
+        // Calculate the location of the upper left pixel.
+        let viewport_upper_left =
+            self.center - (focal_length * self.w) - viewport_u / 2.0 - viewport_v / 2.0;
+        self.pixel_delta_u = viewport_u / self.image_width as f64;
+        self.pixel_delta_v = viewport_v / self.image_height as f64;
+        self.pixel00_loc = viewport_upper_left + 0.5 * (self.pixel_delta_u + self.pixel_delta_v);
+    }
+
     pub fn render(&mut self, world: &dyn Hittable) {
+        self.initialize();
         // Render
 
         println!("P3\n{0} {1}\n255", self.image_width, self.image_height);
