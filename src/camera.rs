@@ -7,6 +7,7 @@ use crate::interval::*;
 use crate::ray::Ray;
 use crate::vec3::*;
 use indicatif::ProgressBar;
+use indicatif::ProgressStyle;
 use rand::thread_rng;
 use rand::Rng;
 
@@ -25,6 +26,10 @@ pub struct Camera {
     pub lookfrom: Point3,
     pub lookat: Point3,
     pub vup: Vec3,
+    pub defocus_angle: f64,
+    pub focus_dist: f64,
+    defocus_disk_u: Vec3,
+    defocus_disk_v: Vec3,
     v: Vec3,
     u: Vec3,
     w: Vec3, // Camera frame basis vectors
@@ -46,8 +51,9 @@ impl Camera {
         let h = f64::tan(theta / 2.0);
         let lookfrom = Point3::new(0.0, 0.0, 0.0);
         let lookat = Point3::new(0.0, 0.0, -1.0);
-        let focal_length: f64 = (lookfrom - lookat).length();
-        let viewport_height: f64 = 2.0 * h * focal_length;
+        let defocus_angle = 0.0;
+        let focus_dist = 10.0;
+        let viewport_height: f64 = 2.0 * h * focus_dist;
         let viewport_width: f64 = viewport_height * ((image_width as f64) / (image_height as f64));
         let vup = Vec3::new(0.0, 1.0, 0.0);
         let w = (lookfrom - lookat).normalized();
@@ -57,11 +63,15 @@ impl Camera {
         let viewport_v = viewport_height * -v;
         let center = lookfrom;
         // Calculate the location of the upper left pixel.
-        let viewport_upper_left = center - (focal_length * w) - viewport_u / 2.0 - viewport_v / 2.0;
+        let viewport_upper_left = center - (focus_dist * w) - viewport_u / 2.0 - viewport_v / 2.0;
         let pixel_delta_u = viewport_u / image_width as f64;
         let pixel_delta_v = viewport_v / image_height as f64;
         let pixel00_loc = viewport_upper_left + 0.5 * (pixel_delta_u + pixel_delta_v);
         let max_depth = 50;
+        let defocus_radius =
+            focus_dist as f64 * f64::tan(degrees_to_radians(defocus_angle as f64 / 2.0));
+        let defocus_disk_u = u * defocus_radius;
+        let defocus_disk_v = v * defocus_radius;
         Camera {
             aspect_ratio,
             image_width,
@@ -77,6 +87,10 @@ impl Camera {
             lookfrom,
             lookat,
             vup,
+            defocus_angle,
+            focus_dist,
+            defocus_disk_u,
+            defocus_disk_v,
             v,
             u,
             w,
@@ -95,8 +109,7 @@ impl Camera {
         // Calculate the vectors across the horizontal and down the vertical viewport edges. sg
         let theta = degrees_to_radians(self.vfov);
         let h = f64::tan(theta / 2.0);
-        let focal_length: f64 = (self.lookfrom - self.lookat).length();
-        let viewport_height: f64 = 2.0 * h * focal_length;
+        let viewport_height: f64 = 2.0 * h * self.focus_dist as f64;
         let viewport_width: f64 =
             viewport_height * ((self.image_width as f64) / (self.image_height as f64));
         self.w = (self.lookfrom - self.lookat).normalized();
@@ -107,10 +120,14 @@ impl Camera {
         self.center = self.lookfrom;
         // Calculate the location of the upper left pixel.
         let viewport_upper_left =
-            self.center - (focal_length * self.w) - viewport_u / 2.0 - viewport_v / 2.0;
+            self.center - (self.focus_dist as f64 * self.w) - viewport_u / 2.0 - viewport_v / 2.0;
         self.pixel_delta_u = viewport_u / self.image_width as f64;
         self.pixel_delta_v = viewport_v / self.image_height as f64;
         self.pixel00_loc = viewport_upper_left + 0.5 * (self.pixel_delta_u + self.pixel_delta_v);
+        let defocus_radius =
+            self.focus_dist as f64 * f64::tan(degrees_to_radians(self.defocus_angle as f64 / 2.0));
+        self.defocus_disk_u = self.u * defocus_radius;
+        self.defocus_disk_v = self.v * defocus_radius;
     }
 
     pub fn render(&mut self, world: &dyn Hittable) {
@@ -120,7 +137,13 @@ impl Camera {
         println!("P3\n{0} {1}\n255", self.image_width, self.image_height);
 
         let bar = ProgressBar::new((self.image_width * self.image_height) as u64);
-
+        bar.set_style(
+            ProgressStyle::with_template(
+                "[{elapsed_precise}] {bar:40.cyan/blue} {pos:>7}/{len:7} {msg}",
+            )
+            .unwrap()
+            .progress_chars("##-"),
+        );
         for j in 0..self.image_height {
             for i in 0..self.image_width {
                 bar.inc(1);
@@ -165,18 +188,27 @@ impl Camera {
     }
 
     fn get_ray(&self, i: u32, j: u32) -> Ray {
-        // Construct a camera ray originating from the origin and directed at randomly sampled
-        // point around the pixel location i, j.
-
+        // Construct a camera ray originating from the defocus disk and directed at a randomly
+        // sampled point around the pixel location i, j.
         let offset = Self::sample_square();
         let pixel_sample = self.pixel00_loc
             + ((i as f64 + offset.x()) * self.pixel_delta_u)
             + ((j as f64 + offset.y()) * self.pixel_delta_v);
 
-        let ray_origin = self.center;
+        let ray_origin = if self.defocus_angle <= 0.0 {
+            self.center
+        } else {
+            self.defocus_disk_sample()
+        };
         let ray_direction = pixel_sample - ray_origin;
 
         Ray::new(ray_origin, ray_direction)
+    }
+
+    fn defocus_disk_sample(&self) -> Point3 {
+        // Returns a random point in the camera defocus disk.
+        let p = Vec3::random_in_unit_disk();
+        self.center + (p[0] * self.defocus_disk_u) + (p[1] + self.defocus_disk_v)
     }
 }
 fn degrees_to_radians(degrees: f64) -> f64 {

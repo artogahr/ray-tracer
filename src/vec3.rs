@@ -5,7 +5,7 @@ use std::ops::{
     Add, AddAssign, Div, DivAssign, Index, IndexMut, Mul, MulAssign, Neg, Sub, SubAssign,
 };
 
-use rand::{thread_rng, Rng};
+use rand::{random, thread_rng, Rng};
 
 #[derive(Default, Debug, Clone, Copy, PartialEq)]
 pub struct Vec3 {
@@ -89,6 +89,19 @@ impl Vec3 {
             on_unit_sphere
         } else {
             -on_unit_sphere
+        }
+    }
+
+    pub fn random_in_unit_disk() -> Vec3 {
+        loop {
+            let p = Vec3::new(
+                rand::thread_rng().gen_range(-1.0..1.0),
+                thread_rng().gen_range(-1.0..1.0),
+                0.0,
+            );
+            if p.length_squared() < 1.0 {
+                return p;
+            }
         }
     }
 
