@@ -77,8 +77,8 @@ fn main() {
     )));
 
     let aspect_ratio = 16.0 / 9.0;
-    let image_width = 400;
-    let mut cam: Camera = Camera::new(aspect_ratio, image_width, 50);
+    let image_width = 1200;
+    let mut cam: Camera = Camera::new(aspect_ratio, image_width, 500);
     cam.max_depth = 50;
 
     cam.vfov = 20.0;

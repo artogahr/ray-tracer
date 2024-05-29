@@ -125,7 +125,7 @@ impl Camera {
         self.pixel_delta_v = viewport_v / self.image_height as f64;
         self.pixel00_loc = viewport_upper_left + 0.5 * (self.pixel_delta_u + self.pixel_delta_v);
         let defocus_radius =
-            self.focus_dist as f64 * f64::tan(degrees_to_radians(self.defocus_angle as f64 / 2.0));
+            self.focus_dist * f64::tan(degrees_to_radians(self.defocus_angle / 2.0));
         self.defocus_disk_u = self.u * defocus_radius;
         self.defocus_disk_v = self.v * defocus_radius;
     }
@@ -208,7 +208,7 @@ impl Camera {
     fn defocus_disk_sample(&self) -> Point3 {
         // Returns a random point in the camera defocus disk.
         let p = Vec3::random_in_unit_disk();
-        self.center + (p[0] * self.defocus_disk_u) + (p[1] + self.defocus_disk_v)
+        self.center + (p.x() * self.defocus_disk_u) + (p.y() * self.defocus_disk_v)
     }
 }
 fn degrees_to_radians(degrees: f64) -> f64 {
