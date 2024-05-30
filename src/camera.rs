@@ -30,9 +30,6 @@ pub struct Camera {
     pub focus_dist: f64,
     defocus_disk_u: Vec3,
     defocus_disk_v: Vec3,
-    v: Vec3,
-    u: Vec3,
-    w: Vec3, // Camera frame basis vectors
 }
 
 impl Camera {
@@ -95,9 +92,6 @@ impl Camera {
             focus_dist,
             defocus_disk_u,
             defocus_disk_v,
-            v,
-            u,
-            w,
         }
     }
 
@@ -113,15 +107,22 @@ impl Camera {
             .unwrap()
             .progress_chars("##-"),
         );
+        let mut pixel_color = Color::new(0.0, 0.0, 0.0);
         for j in 0..self.image_height {
-            for i in 0..self.image_width {
-                bar.inc(1);
-                let mut pixel_color = Color::new(0.0, 0.0, 0.0);
-                for _sample in 0..self.samples_per_pixel {
-                    let r: Ray = self.get_ray(i, j);
-                    pixel_color += Self::ray_color(&r, self.max_depth, world);
-                }
-                write_color(self.pixel_samples_scale * pixel_color);
+            bar.inc(self.image_width.into());
+            let scanline: Vec<Color> = (0..self.image_width)
+                .into_iter()
+                .map(|i| {
+                    pixel_color.clear();
+                    for _sample in 0..self.samples_per_pixel {
+                        let r: Ray = self.get_ray(i, j);
+                        pixel_color += Self::ray_color(&r, self.max_depth, world);
+                    }
+                    self.pixel_samples_scale * pixel_color
+                })
+                .collect();
+            for pixel in scanline {
+                write_color(pixel);
             }
         }
         bar.finish();

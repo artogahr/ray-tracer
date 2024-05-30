@@ -1,5 +1,6 @@
 use crate::{interval::Interval, vec3::*};
 
+#[inline]
 fn linear_to_gamma(linear_component: f64) -> f64 {
     let gamma = 2.0;
     if linear_component > 0.0 {
@@ -9,6 +10,7 @@ fn linear_to_gamma(linear_component: f64) -> f64 {
     }
 }
 
+#[inline]
 pub fn write_color(pixel_color: Color) {
     let r = linear_to_gamma(pixel_color.x());
     let g = linear_to_gamma(pixel_color.y());

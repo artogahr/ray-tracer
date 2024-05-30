@@ -20,6 +20,12 @@ impl Vec3 {
         Vec3 { e: [e0, e1, e2] }
     }
 
+    pub fn clear(&mut self) {
+        self.e[0] = 0.0;
+        self.e[1] = 0.0;
+        self.e[2] = 0.0;
+    }
+
     pub fn random() -> Self {
         Self::new(thread_rng().gen(), thread_rng().gen(), thread_rng().gen())
     }
