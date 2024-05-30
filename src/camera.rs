@@ -10,6 +10,7 @@ use indicatif::ProgressBar;
 use indicatif::ProgressStyle;
 use rand::thread_rng;
 use rand::Rng;
+use rayon::prelude::*;
 
 pub struct Camera {
     pub aspect_ratio: f64,
@@ -107,14 +108,13 @@ impl Camera {
             .unwrap()
             .progress_chars("##-"),
         );
-        let mut pixel_color = Color::new(0.0, 0.0, 0.0);
         for j in 0..self.image_height {
             bar.inc(self.image_width.into());
             let scanline: Vec<Color> = (0..self.image_width)
-                .into_iter()
+                .into_par_iter()
                 .map(|i| {
-                    pixel_color.clear();
-                    for _sample in 0..self.samples_per_pixel {
+                    let mut pixel_color = Color::default();
+                    for _ in 0..self.samples_per_pixel {
                         let r: Ray = self.get_ray(i, j);
                         pixel_color += Self::ray_color(&r, self.max_depth, world);
                     }
