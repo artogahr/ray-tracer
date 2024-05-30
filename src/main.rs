@@ -77,17 +77,28 @@ fn main() {
     )));
 
     let aspect_ratio = 16.0 / 9.0;
-    let image_width = 1200;
-    let mut cam: Camera = Camera::new(aspect_ratio, image_width, 500);
-    cam.max_depth = 50;
+    let image_width = 400;
+    let samples_per_pixel = 50;
+    let max_depth = 50;
+    let vfov = 20.0;
+    let lookfrom = Point3::new(13.0, 2.0, 3.0);
+    let lookat = Point3::new(0.0, 0.0, 0.0);
+    let vup = Vec3::new(0.0, 1.0, 0.0);
+    let defocus_angle = 0.6;
+    let focus_dist = 10.0;
 
-    cam.vfov = 20.0;
-    cam.lookfrom = Point3::new(13.0, 2.0, 3.0);
-    cam.lookat = Point3::new(0.0, 0.0, 0.0);
-    cam.vup = Vec3::new(0.0, 1.0, 0.0);
-
-    cam.defocus_angle = 0.6;
-    cam.focus_dist = 10.0;
+    let mut cam: Camera = Camera::new(
+        aspect_ratio,
+        image_width,
+        samples_per_pixel,
+        max_depth,
+        vfov,
+        lookfrom,
+        lookat,
+        vup,
+        defocus_angle,
+        focus_dist,
+    );
 
     cam.render(&world);
 }
