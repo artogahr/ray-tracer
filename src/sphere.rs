@@ -1,4 +1,4 @@
-use std::{cmp::max, rc::Rc};
+use std::rc::Rc;
 
 use crate::{
     hittable::Hittable,

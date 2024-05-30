@@ -4,7 +4,6 @@ use crate::{
     interval::Interval,
     material::*,
     ray::Ray,
-    sphere::{self, Sphere},
     vec3::{Color, Point3, Vec3},
 };
 

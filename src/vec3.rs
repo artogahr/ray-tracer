@@ -5,7 +5,7 @@ use std::ops::{
     Add, AddAssign, Div, DivAssign, Index, IndexMut, Mul, MulAssign, Neg, Sub, SubAssign,
 };
 
-use rand::{random, thread_rng, Rng};
+use rand::{thread_rng, Rng};
 
 #[derive(Default, Debug, Clone, Copy, PartialEq)]
 pub struct Vec3 {

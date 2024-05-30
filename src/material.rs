@@ -1,7 +1,5 @@
 use core::f64;
 
-use rand::random;
-
 use crate::{
     hittable::HitRecord,
     ray::Ray,
@@ -34,7 +32,7 @@ impl Lambertian {
 }
 
 impl Scatter for Lambertian {
-    fn scatter(&self, r_in: &Ray, rec: &HitRecord) -> Option<(Color, Ray)> {
+    fn scatter(&self, _r_in: &Ray, rec: &HitRecord) -> Option<(Color, Ray)> {
         let mut scatter_direction = rec.normal + Vec3::random_unit_vector();
 
         if scatter_direction.near_zero() {

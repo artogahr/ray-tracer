@@ -16,16 +16,6 @@ impl HittableList {
         }
     }
 
-    pub fn new_from(object: impl Hittable + 'static) -> Self {
-        HittableList {
-            objects: vec![Rc::new(object) as Rc<dyn Hittable>],
-        }
-    }
-
-    pub fn clear(&mut self) {
-        self.objects.clear();
-    }
-
     pub fn add(&mut self, object: Rc<dyn Hittable>) {
         self.objects.push(object);
     }
