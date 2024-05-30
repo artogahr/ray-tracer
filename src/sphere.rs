@@ -1,9 +1,10 @@
 use std::rc::Rc;
 
 use crate::{
-    hittable::Hittable,
+    hittable::{HitRecord, Hittable},
     interval::Interval,
     material::*,
+    ray::Ray,
     vec3::{Point3, Vec3},
 };
 
@@ -24,16 +25,12 @@ impl Sphere {
 }
 
 impl Hittable for Sphere {
-    fn hit(
-        &self,
-        r: &crate::ray::Ray,
-        ray_t: Interval,
-        rec: &mut crate::hittable::HitRecord,
-    ) -> bool {
+    fn hit(&self, r: &Ray, ray_t: Interval, rec: &mut HitRecord) -> bool {
         let oc: Vec3 = self.center - r.origin();
-        let a = r.direction().length_squared();
-        let h = r.direction().dot(oc);
-        let c = oc.length_squared() - self.radius.powi(2);
+        let dir = r.direction();
+        let a = dir.length_squared();
+        let h = dir.dot(oc);
+        let c = oc.length_squared() - self.radius * self.radius;
 
         let discriminant = h * h - a * c;
         if discriminant < 0.0 {
@@ -43,7 +40,6 @@ impl Hittable for Sphere {
         let sqrtd = discriminant.sqrt();
 
         // Find the nearest root that lies in the acceptable range.
-
         let mut root = (h - sqrtd) / a;
         if !ray_t.surrounds(root) {
             root = (h + sqrtd) / a;

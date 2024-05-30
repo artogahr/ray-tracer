@@ -50,6 +50,7 @@ impl Vec3 {
         self[2]
     }
 
+    #[inline]
     pub fn dot(&self, other: Vec3) -> f64 {
         self[0] * other[0] + self[1] * other[1] + self[2] * other[2]
     }
@@ -58,10 +59,12 @@ impl Vec3 {
         self.dot(self).sqrt()
     }
 
+    #[inline]
     pub fn length_squared(self) -> f64 {
         self.dot(self)
     }
 
+    #[inline]
     pub fn cross(self, other: Vec3) -> Vec3 {
         Vec3 {
             e: [
@@ -72,6 +75,7 @@ impl Vec3 {
         }
     }
 
+    #[inline]
     pub fn normalized(self) -> Vec3 {
         self / self.length()
     }
